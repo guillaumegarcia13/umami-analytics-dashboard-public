@@ -10,20 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@capacitor/app": "^7.1.0",
-    "@capacitor/core": "^7.4.3",
-    "@capacitor/device": "^7.0.2",
-    "@capacitor/haptics": "^7.0.2",
-    "@capacitor/local-notifications": "^7.0.3",
-    "@capacitor/preferences": "^7.0.2",
-    "@capacitor/splash-screen": "^7.0.3",
-    "@capacitor/status-bar": "^7.0.3",
-    "@capacitor/toast": "^7.0.2",
+    "@dicebear/collection": "^9.2.4",
+    "@dicebear/lorelei": "^9.2.4",
     "@phosphor-icons/react": "^2.1.10",
-    "@types/react-router-dom": "^5.3.3",
+    "@tailwindcss/vite": "^4.1.13",
     "react": "^19.1.1",
+    "react-country-flag": "^3.1.0",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.1"
+    "sass": "^1.92.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

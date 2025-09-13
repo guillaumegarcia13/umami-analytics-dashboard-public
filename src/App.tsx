@@ -1,34 +1,54 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Navigation } from './components/Navigation'
+import { SessionsTable } from './components/SessionsTable'
 import './App.css'
 
+type TabType = 'dashboard' | 'websites' | 'reports' | 'settings'
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [activeTab, setActiveTab] = useState<TabType>('websites')
+
+  // Mock data for demonstration
+  const mockWebsiteId = '1'
+  const startDate = '2024-01-01'
+  const endDate = '2024-12-31'
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="min-h-screen bg-gray-900">
+      <Navigation 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+      />
+      
+      {activeTab === 'websites' && (
+        <SessionsTable 
+          websiteId={mockWebsiteId}
+          startDate={startDate}
+          endDate={endDate}
+        />
+      )}
+      
+      {activeTab === 'dashboard' && (
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-white mb-4">Dashboard</h2>
+          <p className="text-gray-300">Dashboard content will go here</p>
+        </div>
+      )}
+      
+      {activeTab === 'reports' && (
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-white mb-4">Reports</h2>
+          <p className="text-gray-300">Reports content will go here</p>
+        </div>
+      )}
+      
+      {activeTab === 'settings' && (
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-white mb-4">Settings</h2>
+          <p className="text-gray-300">Settings content will go here</p>
+        </div>
+      )}
+    </div>
   )
 }
 
