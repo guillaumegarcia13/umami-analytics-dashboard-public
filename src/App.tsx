@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigation } from './components/Navigation'
 import { SessionsTable } from './components/SessionsTable'
+import { getWebsiteId } from './config/env'
 import './App.css'
 
 type TabType = 'dashboard' | 'websites' | 'reports' | 'settings'
@@ -8,10 +9,10 @@ type TabType = 'dashboard' | 'websites' | 'reports' | 'settings'
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>('websites')
 
-  // Mock data for demonstration
-  const mockWebsiteId = '1'
-  const startDate = '2024-01-01'
-  const endDate = '2024-12-31'
+  // Date range for API requests (last 24 hours)
+  const now = Date.now()
+  const startDate = (now - 24 * 60 * 60 * 1000).toString() // 24 hours ago
+  const endDate = now.toString() // now
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -22,7 +23,7 @@ function App() {
       
       {activeTab === 'websites' && (
         <SessionsTable 
-          websiteId={mockWebsiteId}
+          websiteId={getWebsiteId()}
           startDate={startDate}
           endDate={endDate}
         />

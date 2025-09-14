@@ -3,6 +3,7 @@
 export interface ApiConfig {
   baseUrl: string;
   apiKey?: string;
+  websiteId?: string;
   timeout: number;
   retries: number;
 }
@@ -10,6 +11,7 @@ export interface ApiConfig {
 const defaultConfig: ApiConfig = {
   baseUrl: import.meta.env.VITE_UMAMI_API_URL || 'http://localhost:3000/api',
   apiKey: import.meta.env.VITE_UMAMI_API_KEY,
+  websiteId: import.meta.env.VITE_UMAMI_WEBSITE_ID,
   timeout: 10000, // 10 secondes
   retries: 3,
 };

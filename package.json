@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:mock": "VITE_USE_MOCK_DATA=true vite",
+    "dev:real": "VITE_USE_MOCK_DATA=false vite",
     "build": "tsc -b && vite build",
+    "build:mock": "VITE_USE_MOCK_DATA=true tsc -b && vite build",
+    "build:real": "VITE_USE_MOCK_DATA=false tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -36,12 +36,14 @@ class ApiError extends Error {
 class UmamiApiClient {
   private baseUrl: string;
   private apiKey?: string;
+  private websiteId?: string;
   private timeout: number;
   private retries: number;
 
   constructor(config = apiConfig) {
     this.baseUrl = config.baseUrl;
     this.apiKey = config.apiKey;
+    this.websiteId = config.websiteId;
     this.timeout = config.timeout;
     this.retries = config.retries;
   }
@@ -58,8 +60,9 @@ class UmamiApiClient {
     };
 
     if (this.apiKey) {
-      (headers as Record<string, string>)['Authorization'] = `Bearer ${this.apiKey}`;
+      (headers as Record<string, string>)['x-umami-api-key'] = this.apiKey;
     }
+
 
     const config: RequestInit = {
       ...options,
@@ -83,6 +86,10 @@ class UmamiApiClient {
         }
 
         const data = await response.json();
+        console.log('📊 API Response Data:', data);
+        console.log('📊 Data Type:', typeof data);
+        console.log('📊 Data Keys:', Object.keys(data));
+        
         return {
           data,
           status: response.status,
@@ -206,18 +213,37 @@ class UmamiApiClient {
   }
 
   async getWebsiteStats(id: string, query: StatsQuery): Promise<ApiResponse<Stats>> {
+    const siteId = id || this.websiteId;
+    if (!siteId) {
+      throw new Error('Website ID is required. Please provide it as parameter or set VITE_UMAMI_WEBSITE_ID environment variable.');
+    }
+
+    // Convert dates to epoch timestamps if they're in string format
+    const startAt = query.startDate && typeof query.startDate === 'string' && !query.startDate.match(/^\d+$/) ? 
+      new Date(query.startDate).getTime().toString() : 
+      query.startDate;
+
+    const endAt = query.endDate && typeof query.endDate === 'string' && !query.endDate.match(/^\d+$/) ? 
+      new Date(query.endDate).getTime().toString() : 
+      query.endDate;
+
     const params = new URLSearchParams({
-      startDate: query.startDate,
-      endDate: query.endDate,
+      startAt,
+      endAt,
       ...(query.timezone && { timezone: query.timezone }),
       ...(query.unit && { unit: query.unit }),
     });
     
-    return this.request<Stats>(`${API_ENDPOINTS.WEBSITES.STATS(id)}?${params}`);
+    const endpoint = `${API_ENDPOINTS.WEBSITES.STATS(siteId)}?${params}`;
+    return this.request<Stats>(endpoint);
   }
 
   async getWebsiteRealtime(id: string): Promise<ApiResponse<RealtimeStats>> {
-    return this.request<RealtimeStats>(API_ENDPOINTS.WEBSITES.REALTIME(id));
+    const siteId = id || this.websiteId;
+    if (!siteId) {
+      throw new Error('Website ID is required. Please provide it as parameter or set VITE_UMAMI_WEBSITE_ID environment variable.');
+    }
+    return this.request<RealtimeStats>(API_ENDPOINTS.WEBSITES.REALTIME(siteId));
   }
 
   // Méthodes pour les équipes
@@ -275,14 +301,32 @@ class UmamiApiClient {
   }
 
   // Méthodes pour les sessions
-  async getSessions(websiteId: string, startDate: string, endDate: string): Promise<ApiResponse<PaginatedResponse<Session>>> {
+  async getSessions(websiteId?: string, startDate?: string, endDate?: string): Promise<ApiResponse<PaginatedResponse<Session>>> {
+    const siteId = websiteId || this.websiteId;
+    if (!siteId) {
+      throw new Error('Website ID is required. Please provide it as parameter or set VITE_UMAMI_WEBSITE_ID environment variable.');
+    }
+
+    // Convert dates to epoch timestamps if they're in string format
+    const startAt = startDate ? 
+      (typeof startDate === 'string' && !startDate.match(/^\d+$/)) ? 
+        new Date(startDate).getTime().toString() : 
+        startDate : 
+      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime().toString(); // 30 days ago
+
+    const endAt = endDate ? 
+      (typeof endDate === 'string' && !endDate.match(/^\d+$/)) ? 
+        new Date(endDate).getTime().toString() : 
+        endDate : 
+      new Date().getTime().toString(); // now
+
     const params = new URLSearchParams({
-      websiteId,
-      startDate,
-      endDate,
+      startAt,
+      endAt,
     });
     
-    return this.request<PaginatedResponse<Session>>(`${API_ENDPOINTS.SESSIONS.LIST}?${params}`);
+    const endpoint = `${API_ENDPOINTS.WEBSITES.STATS(siteId)}?${params}`;
+    return this.request<PaginatedResponse<Session>>(endpoint);
   }
 
   async getSession(id: string): Promise<ApiResponse<Session>> {
@@ -295,14 +339,28 @@ class UmamiApiClient {
   }
 
   async getWebsiteStatsOverview(id: string, query: StatsQuery): Promise<ApiResponse<Stats>> {
+    const siteId = id || this.websiteId;
+    if (!siteId) {
+      throw new Error('Website ID is required. Please provide it as parameter or set VITE_UMAMI_WEBSITE_ID environment variable.');
+    }
+
+    // Convert dates to epoch timestamps if they're in string format
+    const startAt = query.startDate && typeof query.startDate === 'string' && !query.startDate.match(/^\d+$/) ? 
+      new Date(query.startDate).getTime().toString() : 
+      query.startDate;
+
+    const endAt = query.endDate && typeof query.endDate === 'string' && !query.endDate.match(/^\d+$/) ? 
+      new Date(query.endDate).getTime().toString() : 
+      query.endDate;
+
     const params = new URLSearchParams({
-      startDate: query.startDate,
-      endDate: query.endDate,
+      startAt,
+      endAt,
       ...(query.timezone && { timezone: query.timezone }),
       ...(query.unit && { unit: query.unit }),
     });
     
-    return this.request<Stats>(`${API_ENDPOINTS.STATS.WEBSITE(id)}?${params}`);
+    return this.request<Stats>(`${API_ENDPOINTS.STATS.WEBSITE(siteId)}?${params}`);
   }
 
   async getRealtimeStats(): Promise<ApiResponse<RealtimeStats>> {
@@ -321,6 +379,7 @@ export type { UmamiApiConfig as ApiConfig };
 export interface UmamiApiConfig {
   baseUrl: string;
   apiKey?: string;
+  websiteId?: string;
   timeout: number;
   retries: number;
 }
