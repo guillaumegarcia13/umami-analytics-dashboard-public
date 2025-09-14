@@ -5,13 +5,10 @@ import { mockSessions, generateMockSessions } from '../../utils/mockData';
 import { shouldUseMockData, getWebsiteId } from '../../config/environment';
 import { apiClient } from '../client';
 import type { Session, ApiResponse, PaginatedResponse } from '../types';
+import type { ProcessingOptions, ProcessedResponse } from '../processors/types';
 
-interface SessionWithStats extends Session {
-  visits: number;
-  views: number;
-  city?: string;
-  lastSeen: string;
-}
+// Session data from API already includes visits, views, city, and lastAt
+type SessionWithStats = Session;
 
 interface UseSessionsOptions {
   websiteId: string;
@@ -19,6 +16,7 @@ interface UseSessionsOptions {
   endDate: string;   // Can be epoch timestamp or date string
   page?: number;
   pageSize?: number;
+  processingOptions?: ProcessingOptions; // Options for filtering sessions
 }
 
 interface UseSessionsState {
@@ -29,6 +27,7 @@ interface UseSessionsState {
   page: number;
   pageSize: number;
   hasMore: boolean;
+  processingStats?: ProcessedResponse<PaginatedResponse<Session>>['stats'];
 }
 
 interface UseSessionsActions {
@@ -65,9 +64,7 @@ export function useSessions(options: UseSessionsOptions): UseSessionsState & Use
         // Convertir les données mock en SessionWithStats
         const convertedSessions: SessionWithStats[] = mockData.map(mock => ({
           id: mock.id,
-          sessionId: mock.sessionId,
           websiteId: '1', // Mock website ID
-          hostname: 'example.com', // Mock hostname
           browser: mock.browser,
           os: mock.os,
           device: mock.device,
@@ -77,9 +74,9 @@ export function useSessions(options: UseSessionsOptions): UseSessionsState & Use
           city: mock.city,
           visits: mock.visits,
           views: mock.views,
-          lastSeen: mock.lastSeen,
+          firstAt: mock.lastSeen,
+          lastAt: mock.lastSeen,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
         }));
 
         setState(prev => ({
@@ -91,74 +88,89 @@ export function useSessions(options: UseSessionsOptions): UseSessionsState & Use
           loading: false,
         }));
       } else {
-        // Utiliser l'API réelle
-        const websiteId = options.websiteId || getWebsiteId();
-        const response: ApiResponse<PaginatedResponse<Session>> = await apiClient.getSessions(
-          websiteId,
-          options.startDate,
-          options.endDate
-        );
+        // Utiliser l'API réelle avec traitement des données
+        const websiteId = options.websiteId || getWebsiteId() || undefined;
+        
+        // Use the new processing method if custom options are provided
+        if (options.processingOptions) {
+          const processedResponse: ProcessedResponse<PaginatedResponse<Session>> = await apiClient.getSessionsWithProcessing(
+            websiteId,
+            options.startDate,
+            options.endDate,
+            page,
+            options.pageSize || 10,
+            options.processingOptions
+          );
 
-        if (response.data) {
-          console.log('🔍 Sessions API Response:', response.data);
+          console.log('🔍 Processed Sessions Response:', processedResponse);
+          console.log('📊 Processing Stats:', processedResponse.stats);
           
-          // Check if the response is stats data (not sessions data)
-          if (response.data.pageviews || response.data.visitors || response.data.visits) {
-            console.log('📊 Received stats data instead of sessions data');
-            // This is stats data, not sessions data - convert to mock sessions for now
-            const mockSessionsFromStats: SessionWithStats[] = Array.from({ length: 5 }, (_, index) => ({
-              id: `stat_${index}`,
-              sessionId: `sess_${index}`,
-              websiteId: websiteId,
-              hostname: 'example.com',
-              browser: 'Chrome',
-              os: 'Windows',
-              device: 'Desktop',
-              screen: '1920x1080',
-              language: 'en-US',
-              country: 'Unknown',
-              city: 'Unknown',
-              visits: Math.floor(Math.random() * 5) + 1,
-              views: Math.floor(Math.random() * 50) + 1,
-              lastSeen: new Date().toISOString(),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            }));
+          const sessionsData = processedResponse.data.data || [];
+          
+          // Enrich sessions with properties
+          console.log(`🚀 Starting processed session enrichment for ${sessionsData.length} sessions...`);
+          const enrichedSessions: SessionWithStats[] = await apiClient.enrichSessionsWithProperties(
+            sessionsData,
+            websiteId
+          );
+          console.log(`✨ Processed enriched sessions result:`, enrichedSessions.map(s => ({ 
+            id: s.id, 
+            browser: s.browser, 
+            isPWA: s.properties?.isPWA 
+          })));
 
-            setState(prev => ({
-              ...prev,
-              sessions: page === 1 ? mockSessionsFromStats : [...prev.sessions, ...mockSessionsFromStats],
-              total: 5,
-              page,
-              hasMore: false,
-              loading: false,
-            }));
-          } else {
-            // Handle actual sessions data if available
-            const sessionsData = Array.isArray(response.data) ? response.data : response.data.data || [];
-            const enrichedSessions: SessionWithStats[] = sessionsData.map((session: any) => ({
-              ...session,
-              visits: Math.floor(Math.random() * 5) + 1, // TODO: Get from real stats
-              views: Math.floor(Math.random() * 50) + 1, // TODO: Get from real stats
-              city: session.city || 'Unknown',
-              lastSeen: new Date().toISOString(),
-            }));
+          setState(prev => ({
+            ...prev,
+            sessions: page === 1 ? enrichedSessions : [...prev.sessions, ...enrichedSessions],
+            total: processedResponse.data.count || sessionsData.length,
+            page,
+            hasMore: page * (options.pageSize || 10) < (processedResponse.data.count || 0),
+            processingStats: processedResponse.stats,
+            loading: false,
+          }));
+        } else {
+          // Use the standard method with default processing
+          const response: ApiResponse<PaginatedResponse<Session>> = await apiClient.getSessions(
+            websiteId,
+            options.startDate,
+            options.endDate,
+            page,
+            options.pageSize || 10
+          );
+
+          if (response.data) {
+            console.log('🔍 Sessions API Response:', response.data);
+            
+            // Handle real sessions data
+            const sessionsData = response.data.data || [];
+            
+            // Enrich sessions with properties
+            console.log(`🚀 Starting session enrichment for ${sessionsData.length} sessions...`);
+            const enrichedSessions: SessionWithStats[] = await apiClient.enrichSessionsWithProperties(
+              sessionsData,
+              websiteId
+            );
+            console.log(`✨ Enriched sessions result:`, enrichedSessions.map(s => ({ 
+              id: s.id, 
+              browser: s.browser, 
+              isPWA: s.properties?.isPWA 
+            })));
 
             setState(prev => ({
               ...prev,
               sessions: page === 1 ? enrichedSessions : [...prev.sessions, ...enrichedSessions],
-              total: response.data.total || sessionsData.length,
+              total: response.data.count || sessionsData.length,
               page,
-              hasMore: response.data.hasMore || false,
+              hasMore: page * (options.pageSize || 10) < (response.data.count || 0),
+              loading: false,
+            }));
+          } else {
+            setState(prev => ({
+              ...prev,
+              error: 'Erreur lors du chargement des sessions',
               loading: false,
             }));
           }
-        } else {
-          setState(prev => ({
-            ...prev,
-            error: 'Erreur lors du chargement des sessions',
-            loading: false,
-          }));
         }
       }
     } catch (error) {
@@ -168,7 +180,7 @@ export function useSessions(options: UseSessionsOptions): UseSessionsState & Use
         loading: false,
       }));
     }
-  }, [options.websiteId, options.startDate, options.endDate, state.page]);
+  }, [options.websiteId, options.startDate, options.endDate, options.pageSize, options.processingOptions, state.page]);
 
   const refetch = useCallback(async () => {
     await fetchSessions(1);

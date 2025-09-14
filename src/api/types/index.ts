@@ -17,6 +17,8 @@ export interface Website {
   createdAt: string;
   updatedAt: string;
   userId: string;
+  // Computed field for full domain with subdomain
+  fullDomain?: string;
 }
 
 export interface Team {
@@ -53,19 +55,39 @@ export interface Event {
   os?: string;
 }
 
+export interface SessionProperty {
+  websiteId: string;
+  sessionId: string;
+  dataKey: string;
+  dataType: number;
+  stringValue: string | null;
+  numberValue: number | null;
+  dateValue: string | null;
+  createdAt: string;
+}
+
+export interface SessionProperties {
+  isPWA?: boolean;
+  [key: string]: unknown;
+}
+
 export interface Session {
   id: string;
   websiteId: string;
-  sessionId: string;
-  hostname: string;
   browser: string;
   os: string;
   device: string;
   screen: string;
   language: string;
   country: string;
+  region?: string;
+  city?: string;
+  firstAt: string;
+  lastAt: string;
+  visits: number;
+  views: number;
   createdAt: string;
-  updatedAt: string;
+  properties?: SessionProperties;
 }
 
 export interface Pageview {
@@ -93,10 +115,9 @@ export interface ApiResponse<T> {
 
 export interface PaginatedResponse<T> {
   data: T[];
-  total: number;
+  count: number;
   page: number;
   pageSize: number;
-  hasMore: boolean;
 }
 
 export interface DateRange {

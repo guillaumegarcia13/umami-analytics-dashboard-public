@@ -45,6 +45,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/websites/${id}`,
     DELETE: (id: string) => `/websites/${id}`,
     STATS: (id: string) => `/websites/${id}/stats`,
+    SESSIONS: (id: string) => `/websites/${id}/sessions`,
     REALTIME: (id: string) => `/websites/${id}/realtime`,
   },
   
@@ -73,6 +74,7 @@ export const API_ENDPOINTS = {
     LIST: '/sessions',
     GET: (id: string) => `/sessions/${id}`,
     STATS: '/sessions/stats',
+    PROPERTIES: (websiteId: string, sessionId: string) => `/websites/${websiteId}/sessions/${sessionId}/properties`,
   },
   
   // Statistiques

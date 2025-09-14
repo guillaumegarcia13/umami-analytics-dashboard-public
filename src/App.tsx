@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Navigation } from './components/Navigation'
 import { SessionsTable } from './components/SessionsTable'
-import { getWebsiteId } from './config/env'
 import './App.css'
 
 type TabType = 'dashboard' | 'websites' | 'reports' | 'settings'
@@ -15,7 +14,7 @@ function App() {
   const endDate = now.toString() // now
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 w-full">
       <Navigation 
         activeTab={activeTab} 
         onTabChange={setActiveTab} 
@@ -23,7 +22,6 @@ function App() {
       
       {activeTab === 'websites' && (
         <SessionsTable 
-          websiteId={getWebsiteId()}
           startDate={startDate}
           endDate={endDate}
         />

@@ -8,3 +8,7 @@ export { CountryFlag } from './CountryFlag';
 export { BrowserIcon } from './BrowserIcon';
 export { OSIcon } from './OSIcon';
 export { DeviceIcon } from './DeviceIcon';
+export { ProcessingStats } from './ProcessingStats';
+export { WebsiteSelector } from './WebsiteSelector';
+export { Favicon } from './Favicon';
+export { ExcludedSessionPopover } from './ExcludedSessionPopover';

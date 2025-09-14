@@ -1,14 +1,13 @@
-// Composant pour l'icône du type d'appareil avec Phosphor Icons
+// Composant pour l'icône du type d'appareil avec react-icons
 
 import { 
-  DeviceMobile, 
-  DeviceTablet, 
-  Laptop, 
-  Desktop, 
-  Watch, 
-  Television,
-  Monitor
-} from '@phosphor-icons/react';
+  FaMobile,
+  FaTablet,
+  FaLaptop,
+  FaDesktop,
+  FaTv,
+  FaDesktop as FaMonitor
+} from 'react-icons/fa';
 
 interface DeviceIconProps {
   device: string;
@@ -18,20 +17,23 @@ export function DeviceIcon({ device }: DeviceIconProps) {
   const getDeviceIcon = (deviceType: string) => {
     const normalizedDevice = deviceType.toLowerCase();
     
-    if (normalizedDevice.includes('mobile') || normalizedDevice.includes('phone')) {
-      return <DeviceMobile className="w-4 h-4 text-blue-500" />;
-    } else if (normalizedDevice.includes('tablet')) {
-      return <DeviceTablet className="w-4 h-4 text-purple-500" />;
-    } else if (normalizedDevice.includes('laptop')) {
-      return <Laptop className="w-4 h-4 text-gray-500" />;
-    } else if (normalizedDevice.includes('desktop')) {
-      return <Desktop className="w-4 h-4 text-gray-600" />;
-    } else if (normalizedDevice.includes('watch')) {
-      return <Watch className="w-4 h-4 text-pink-500" />;
-    } else if (normalizedDevice.includes('tv')) {
-      return <Television className="w-4 h-4 text-indigo-500" />;
-    } else {
-      return <Monitor className="w-4 h-4 text-gray-500" />;
+    // Handle Umami's specific device values
+    switch (normalizedDevice) {
+      case 'mobile':
+      case 'phone':
+        return <FaMobile className="w-4 h-4 text-blue-500" />;
+      case 'tablet':
+        return <FaTablet className="w-4 h-4 text-purple-500" />;
+      case 'laptop':
+        return <FaLaptop className="w-4 h-4 text-gray-500" />;
+      case 'desktop':
+        return <FaDesktop className="w-4 h-4 text-gray-600" />;
+      case 'watch':
+        return <FaMobile className="w-4 h-4 text-pink-500" />; // Use mobile icon for watch
+      case 'tv':
+        return <FaTv className="w-4 h-4 text-indigo-500" />;
+      default:
+        return <FaMonitor className="w-4 h-4 text-gray-500" />;
     }
   };
 

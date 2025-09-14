@@ -56,6 +56,21 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* React Switch Custom Styles */
+.react-switch {
+  box-shadow: 0 0 0 2px transparent;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.react-switch:focus {
+  box-shadow: 0 0 0 2px #3b82f6;
+  outline: none;
+}
+
+.react-switch:hover {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

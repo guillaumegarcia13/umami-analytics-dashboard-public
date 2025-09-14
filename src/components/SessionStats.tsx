@@ -13,7 +13,7 @@ export function SessionStats({
   totalSessions, 
   activeSessions, 
   totalVisits, 
-  totalViews 
+  totalViews
 }: SessionStatsProps) {
   const stats = [
     {
@@ -51,18 +51,18 @@ export function SessionStats({
   ];
 
   return (
-    <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
-      <div className="flex flex-wrap gap-3">
+    <div className="bg-gray-800 border-b border-gray-700 px-4 sm:px-6 py-4 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
         {stats.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
-            <div key={index} className="bg-gray-700 rounded-lg px-5 py-4 hover:bg-gray-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center space-x-4 min-w-0 flex-1">
-              <div className={`p-3 ${stat.bgColor} rounded-lg shadow-sm flex-shrink-0`}>
-                <IconComponent className="w-6 h-6 text-white" />
+            <div key={index} className="bg-gray-700 rounded-lg px-3 sm:px-5 py-3 sm:py-4 hover:bg-gray-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center space-x-2 sm:space-x-4 min-w-0">
+              <div className={`p-2 sm:p-3 ${stat.bgColor} rounded-lg shadow-sm flex-shrink-0`}>
+                <IconComponent className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-gray-400 truncate">{stat.label}</p>
-                <p className={`text-lg font-bold ${stat.textColor} truncate`}>{stat.value.toLocaleString()}</p>
+                <p className={`text-sm sm:text-lg font-bold ${stat.textColor} truncate`}>{stat.value.toLocaleString()}</p>
               </div>
             </div>
           );

@@ -16,9 +16,9 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
   ] as const;
 
   return (
-    <div className="bg-gray-800 border-b border-gray-700">
-      <div className="px-6 py-4">
-        <div className="flex items-center justify-between">
+    <div className="bg-gray-800 border-b border-gray-700 w-full">
+      <div className="px-6 py-4 w-full">
+        <div className="flex items-center justify-between w-full">
           {/* Logo */}
           <div className="flex items-center space-x-8">
             <h1 className="text-xl font-bold text-white">umami</h1>

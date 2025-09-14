@@ -8,7 +8,7 @@ export const ENV_CONFIG = {
   // API configuration
   API_BASE_URL: env.VITE_UMAMI_API_URL,
   API_KEY: env.VITE_UMAMI_API_KEY,
-  WEBSITE_ID: env.VITE_UMAMI_WEBSITE_ID,
+  WEBSITE_ID: env.VITE_UMAMI_WEBSITE_ID || null,
   
   // Development mode
   IS_DEVELOPMENT: import.meta.env.DEV,
@@ -28,10 +28,7 @@ export const getApiConfig = () => ({
 });
 
 // Helper function to get website ID
-export const getWebsiteId = (): string => {
-  if (!ENV_CONFIG.WEBSITE_ID) {
-    throw new Error('VITE_UMAMI_WEBSITE_ID environment variable is required');
-  }
+export const getWebsiteId = (): string | null => {
   return ENV_CONFIG.WEBSITE_ID;
 };
 
@@ -42,5 +39,6 @@ if (ENV_CONFIG.IS_DEVELOPMENT) {
     apiBaseUrl: ENV_CONFIG.API_BASE_URL,
     hasApiKey: !!ENV_CONFIG.API_KEY,
     hasWebsiteId: !!ENV_CONFIG.WEBSITE_ID,
+    websiteId: ENV_CONFIG.WEBSITE_ID || 'not set (using website selector)',
   });
 }

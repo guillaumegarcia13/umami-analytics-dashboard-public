@@ -29,8 +29,8 @@ export function useEvents(query: EventQuery) {
       setState(prev => ({
         ...prev,
         events: response.data.data,
-        total: response.data.total,
-        hasMore: response.data.hasMore,
+        total: response.data.count,
+        hasMore: false,
         isLoading: false,
       }));
     } catch (error: unknown) {

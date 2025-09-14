@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '../client';
+import { enhanceWebsitesWithFullDomains } from '../../utils/website';
 import type { 
   Website, 
   CreateWebsiteRequest, 
@@ -40,11 +41,12 @@ export function useWebsites() {
     
     try {
       const response = await apiClient.getWebsites();
+      const enhancedWebsites = enhanceWebsitesWithFullDomains(response.data.data);
       setState(prev => ({
         ...prev,
-        websites: response.data.data,
-        total: response.data.total,
-        hasMore: response.data.hasMore,
+        websites: enhancedWebsites,
+        total: response.data.count,
+        hasMore: false,
         isLoading: false,
       }));
     } catch (error: unknown) {
