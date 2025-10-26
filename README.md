@@ -1,7 +1,7 @@
 # Umami Analytics Dashboard
 
 <div align="center">
-  <img src="public/umami-analytics-dashboard.png" alt="Umami Analytics Dashboard" width="800" />
+  <img src="./public/umami-analytics-dashboard.png" alt="Umami Analytics Dashboard" width="800" />
 </div>
 
 A modern, self-hostable analytics dashboard built with React, TypeScript, and Tailwind CSS. Perfect for SaaS developers who want to integrate analytics directly into their admin panels.

@@ -84,7 +84,10 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+public/*
+!public/umami-analytics-dashboard.png
+!public/umami-favicon.svg
+!public/vite.svg
 
 # Storybook build outputs
 .out
