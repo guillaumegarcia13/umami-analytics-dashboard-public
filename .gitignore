@@ -97,3 +97,6 @@ temp/
 # Capacitor
 android/
 ios/
+
+# Test files
+test-*.js
